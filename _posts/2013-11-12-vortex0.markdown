@@ -1,0 +1,95 @@
+---
+layout: post
+title:  "Level 0 on vortex"
+date:   2013-11-12 15:29:10
+categories: programming wargames c
+---
+
+I decided to embark on doing vortex at [overthewire.org][overthewire]. The
+description for level 0 reads as follows:
+
+```
+Your goal is to connect to port 5842 on vortex.labs.overthewire.org and read in
+4 unsigned integers in host byte order. Add these integers together and send
+back the results to get a username and password for vortex1. This information
+can be used to log in using SSH.
+```
+
+There is an additional note stating that the machine is a 32bit x86 architecture. This means two things to us. 
+
+ 1. The architecture is little endian.
+ 2. The size of an unsigned integer is 32 bits.
+
+---
+
+The solution to this challenge didn't take any more than some basic knowledge of
+the C programming language as well as some socket coding. The code below is what
+I used to gain access to level1.
+
+{% highlight c %}
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
+
+int xconnect(const char * const server, const char * const port)
+{
+	int sd = -1;
+
+	/* 
+	 * snipped, so others who want to do this challenge can't just
+	 * steal this solution.
+	 */
+
+	return sd;
+}
+
+int main()
+{
+        char buf[512] = {0};
+        uint32_t total, tmp;
+        int sd;
+
+        sd = xconnect("vortex.labs.overthewire.org", "5842");
+        if(0 > sd)
+                exit(EXIT_FAILURE);
+
+        /* read the 32 bit integers and total them. */
+        recv(sd, (void *) &total, sizeof(total), 0);
+
+        recv(sd, (void *) &tmp, sizeof(tmp), 0);
+        total += tmp;
+
+        recv(sd, (void *) &tmp, sizeof(tmp), 0);
+        total += tmp;
+
+        recv(sd, (void *) &tmp, sizeof(tmp), 0);
+        total += tmp;
+
+        /* send result */
+        send(sd, (void *) &total, sizeof(total), 0);
+
+	/* read username/password */
+        recv(sd, (void *) buf, sizeof(buf) - 1, 0);
+        printf("%s\n", buf);
+
+        shutdown(sd, SHUT_RDWR);
+        close(sd);
+        return 0;
+}
+{% endhighlight %}
+
+After running the above code I ended up with this output:
+
+```Username: XXXXXX Password: YYYYYY```
+
+The username and password blanked out for obvious reasons.
+
+# Using the code above.
+
+You may use the code above by filling out the ```xconnect()``` function.
+Helpful manpages: ```getaddrinfo(3)```, ```socket(2)``` and ```connect(2)```.
+
+[overthewire]: http://www.overthewire.org/
