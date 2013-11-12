@@ -1,0 +1,19 @@
+#! /bin/bash
+
+if [ "$2" = "" ]; then
+    echo "Usage: $0 <filename> <title>"
+    exit 1
+fi
+
+stamp="$(date +"%Y-%m-%d-$1.markdown")"
+shift
+
+cat <<EOF > "$PWD/_posts/$stamp"
+---
+layout: post
+title:  "$@"
+date:   $(date +"%Y-%m-%d %H:%M:%S")
+categories: 
+---
+
+EOF
