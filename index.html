@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Pool Diagram Thingy</title>
+  </head>
+  <body>
+    <canvas id="table" width="640" height="351"></canvas>
+    <script>
+      var canvas = document.getElementById('table');
+      var context = canvas.getContext('2d');
+      var tableImg = new Image();
+
+      tableImg.onload = function() {
+        context.drawImage(tableImg, 640, 351);
+      }
+
+      tableImg.src = './table.png'
+    </script>
+  </body>
+</html>
