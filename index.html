@@ -8,6 +8,18 @@
     <script src="js/jquery-1.9.1.js"></script>
     <script src="js/jcanvas.min.js"></script>
     <script>
+      /*
+       * yanked from
+       * http://stackoverflow.com/questions/3788125/jquery-querystring
+       */
+
+      function querystring(key) {
+        var re=new RegExp('(?:\\?|&)'+key+'=(.*?)(?=&|$)','gi');
+        var r=[], m;
+        while ((m=re.exec(document.location.search)) != null) r.push(m[1]);
+        return r;
+      }
+
       $(function() {
         $('#table').draw({
           layer: true,
@@ -23,18 +35,62 @@
           fromCenter: false,
         });
 
+        var re = new RegExp('(\\d+)x(\\d+)');
         for(var i = 0; i <= 15; i++) {
+          var yval = 525, xval = (i + 1) * 15 + ((i + 0.5) * 40);
+          var m, ball = querystring('b' + i);
+
+          if(ball && ball != '') {
+            if((m = re.exec(ball)) != null) {
+              yval = m[1], xval = m[2];
+            }
+          }
+
           $('#table').drawImage({
+            layer: true,
+            name: 'b' + i,
             source: 'images/' + i + '.png',
-            x: (i + 1) * 15 + ((i + 0.5) * 40), y: 525,
+            x: xval, y: yval,
             draggable: true,
           });
         }
-
       });
+
+      function copyLink() {
+        var params = [];
+        var baseurl = document.location.origin + document.location.pathname;
+        for(var i = 0; i <= 15; i++) {
+          var ball = $('#table').getLayer('b' + i);
+          if(ball.y != 525) {
+            params.push("b" + i + "=" + ball.y + "x" + ball.x);
+          }
+        }
+
+        if(params.length > 0) {
+          $('#link').val(baseurl + '?' + params.join('&'));
+        }
+      }
     </script>
   </head>
   <body>
     <canvas id="table" width="912" height="550"></canvas>
+    <div id="links">
+      <form>
+        <a href="javascript:copyLink()">Generate Link</a>
+        <input type="text" size="75" name="link" id="link" />
+      </form>
+    </div>
+    <div id="info">
+      <p>
+        This is a simple diagram thing for sharing pool situations. <br />
+        It's hacked together using jquery and jcanvas. The pool table image<br />
+        was taken from <a
+          href="http://www.cheetah3d.com/forum/attachment.php?attachmentid=5304&stc=1&d=1217452437">here</a>.
+        (Thanks Chris for sharing the link.)<br />
+        <br />
+        The pool balls themselves were done by me in gimp in about 15<br />
+        minutes or so. You may use them if you'd like.<br />
+      </p>
+    </div>
   </body>
 </html>
