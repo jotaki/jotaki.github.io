@@ -29,10 +29,28 @@
           fromCenter: false,
         });
 
+        $('#table').poolhints = {
+          isDrawing: false,
+        }
+
         $('#table').drawImage({
           layer: true,
+          name: 'table',
           source: 'images/table.png',
           fromCenter: false,
+          mousedown: function(l) {
+            l.isDrawing = true;
+          },
+
+          mousemove: function(l) {
+            if(l.isDrawing) {
+              // TODO: add stuff.
+            }
+          },
+
+          mouseup: function(l) {
+            l.isDrawing = false;
+          },
         });
 
         var re = new RegExp('(\\d+)x(\\d+)');
@@ -89,9 +107,9 @@
     <div id="info">
       <p>
         This is a simple diagram thing for sharing pool situations. <br />
-        It's hacked together using jquery and jcanvas. The pool table image<br />
-        was taken from <a
-          href="http://www.cheetah3d.com/forum/attachment.php?attachmentid=5304&stc=1&d=1217452437">here</a>.
+        It's hacked together using HTML5 with jquery and jcanvas. The<br />
+        pool table image was taken from <a
+          href="http://www.cheetah3d.com/forum/attachment.php?attachmentid=5304&amp;stc=1&amp;d=1217452437">here</a>.
         (Thanks Chris for sharing the link.)<br />
         <br />
         The pool balls themselves were done by me in gimp in about 15<br />
