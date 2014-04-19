@@ -20,6 +20,8 @@
         return r;
       }
 
+      var lineIndex = 0;
+
       $(function() {
         $('#table').draw({
           layer: true,
@@ -29,27 +31,25 @@
           fromCenter: false,
         });
 
-        $('#table').poolhints = {
-          isDrawing: false,
-        }
-
         $('#table').drawImage({
           layer: true,
           name: 'table',
           source: 'images/table.png',
           fromCenter: false,
-          mousedown: function(l) {
-            l.isDrawing = true;
-          },
 
-          mousemove: function(l) {
-            if(l.isDrawing) {
-              // TODO: add stuff.
-            }
+          mousedown: function(l) {
+            l.startX = l.eventX;
+            l.startY = l.eventY;
           },
 
           mouseup: function(l) {
-            l.isDrawing = false;
+            $('#table').drawLine({
+              layer: true,
+              name: 'l' + lineIndex++,
+              strokeStyle: '#00c',
+              x1: l.startX, y1: l.startY,
+              x2: l.eventX, y2: l.eventY,
+            });
           },
         });
 
@@ -72,6 +72,25 @@
             draggable: true,
           });
         }
+
+        re = new RegExp('(\\d+)t(\\d+)x(\\d+)t(\\d+)');
+        for(var i = 0; querystring('l' + i) != ''; i++) {
+          var m, line = querystring('l' + i);
+
+          if((m = re.exec(line)) != null) {
+            var x1val = parseInt(m[1]), y1val = parseInt(m[2]);
+            var x2val = parseInt(m[3]), y2val = parseInt(m[4]);
+            lineIndex = i + 1;
+
+            $('#table').drawLine({
+              layer: true,
+              name: 'l' + i,
+              strokeStyle: '#00c',
+              x1: x1val, y1: y1val,
+              x2: x2val, y2: y2val,
+            });
+          }
+        }
       });
 
       function copyLink() {
@@ -82,6 +101,15 @@
           if(ball.y != 525) {
             params.push("b" + i + "=" + ball.y + "x" + ball.x);
           }
+        }
+
+        var i = 0, line;
+        while((line = $('#table').getLayer("l" + i)) != null) {
+          var x1 = line.x1, x2 = line.x2, y1 = line.y1, y2 = line.y2;
+
+          params.push("l" + i + "=" + x1 + "t" + y1 + "x" + x2 + "t" + y2);
+
+          i += 1;
         }
 
         if(params.length > 0) {
