@@ -70,6 +70,11 @@
           $('#link').val(baseurl + '?' + params.join('&'));
         }
       }
+
+      function saveImage() {
+        var img = $('#table').getCanvasImage('png').replace('image/png', 'image/octet-stream');
+        window.location.href = img;
+      }
     </script>
   </head>
   <body>
@@ -78,6 +83,7 @@
       <form>
         <a href="javascript:copyLink()">Generate Link</a>
         <input type="text" size="75" name="link" id="link" />
+        <a href="javascript:saveImage()">Save Image</a>
       </form>
     </div>
     <div id="info">
