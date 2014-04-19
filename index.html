@@ -1,38 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
+    <meta name="author" content="Joseph Kinsella" />
     <title>Pool Diagram Thingy</title>
+
+    <script src="js/jquery-1.9.1.js"></script>
+    <script src="js/jcanvas.min.js"></script>
+    <script>
+      $(function() {
+        $('#table').draw({
+          layer: true,
+          type: 'rectangle',
+          fillStyle: '#ccc',
+          width: 1000, height: 1000,
+          fromCenter: false,
+        });
+
+        $('#table').drawImage({
+          layer: true,
+          source: 'images/table.png',
+          fromCenter: false,
+        });
+
+        for(var i = 0; i <= 15; i++) {
+          $('#table').drawImage({
+            source: 'images/' + i + '.png',
+            x: (i + 1) * 15 + (i*15), y: 525,
+            draggable: true,
+          });
+        }
+
+      });
+    </script>
   </head>
   <body>
-    <canvas id="table" width="912" height="500"></canvas>
-    <script>
-      var canvas = document.getElementById('table');
-      var context = canvas.getContext('2d');
-      var tableImg = new Image();
-
-      tableImg.onload = function() {
-        context.drawImage(tableImg, 0, 0);
-      }
-
-      tableImg.src = 'table.png';
-    </script>
-    <div style="background-color: #ccc">
-      <img src="0.png" />
-      <img src="1.png" />
-      <img src="2.png" />
-      <img src="3.png" />
-      <img src="4.png" />
-      <img src="5.png" />
-      <img src="6.png" />
-      <img src="7.png" />
-      <img src="9.png" />
-      <img src="10.png" />
-      <img src="11.png" />
-      <img src="12.png" />
-      <img src="13.png" />
-      <img src="14.png" />
-      <img src="15.png" />
-    </div>
+    <canvas id="table" width="912" height="550"></canvas>
   </body>
 </html>
