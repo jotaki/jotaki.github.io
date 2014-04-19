@@ -26,7 +26,7 @@
         for(var i = 0; i <= 15; i++) {
           $('#table').drawImage({
             source: 'images/' + i + '.png',
-            x: (i + 1) * 15 + (i*40), y: 525,
+            x: (i + 1) * 15 + ((i + 0.5) * 40), y: 525,
             draggable: true,
           });
         }
