@@ -1,0 +1,30 @@
+body {
+	background-color: #ccc;
+	color: #000;
+	font-family: serif, arial;
+	font-size: 14px;
+	font-style: italic;
+}
+
+canvas#table {
+	float: left;
+	padding-right: 0.5cm;
+}
+
+div#links {
+	clear: both;
+}
+
+div#info {
+}
+
+a {
+	color: #00f;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+a:hover {
+	color: #00a;
+	text-decoration: underline;
+}

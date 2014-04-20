@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="author" content="Joseph Kinsella" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
     <title>Pool Diagram Thingy</title>
 
     <script src="js/jquery-1.9.1.js"></script>
@@ -143,24 +144,27 @@
   </head>
   <body>
     <canvas id="table" width="912" height="550"></canvas>
+    <div id="info">
+      <p>
+        This is a simple diagram thing for sharing pool situations.
+        It's hacked together using HTML5 with jquery and jcanvas. The
+        pool table image was taken from <a href="http://tiny.cc/g8jmex">here</a>.
+        <br /><br />
+        The pool balls themselves were done by me in gimp in about 15
+        minutes or so. You may use them if you'd like.
+        <br /><br />
+        Thanks goes to Alipha for the initial idea of doing this.
+        Thanks goes to Chris for sharing the link of the pool table image.
+        <br /><br />
+        Contact: #peltkore on irc.freenode.net
+      </p>
+    </div>
     <div id="links">
       <form>
         <a href="javascript:copyLink()">Generate Link</a>
-        <input type="text" size="75" name="link" id="link" />
+        <input type="text" size="85" name="link" id="link" />
         <a href="javascript:saveImage()">Save Image</a>
       </form>
-    </div>
-    <div id="info">
-      <p>
-        This is a simple diagram thing for sharing pool situations. <br />
-        It's hacked together using HTML5 with jquery and jcanvas. The<br />
-        pool table image was taken from <a
-          href="http://www.cheetah3d.com/forum/attachment.php?attachmentid=5304&amp;stc=1&amp;d=1217452437">here</a>.
-        (Thanks Chris for sharing the link.)<br />
-        <br />
-        The pool balls themselves were done by me in gimp in about 15<br />
-        minutes or so. You may use them if you'd like.<br />
-      </p>
     </div>
   </body>
 </html>
