@@ -47,8 +47,13 @@
               layer: true,
               name: 'l' + lineIndex++,
               strokeStyle: '#00c',
+              strokeWidth: 5,
               x1: l.startX, y1: l.startY,
               x2: l.eventX, y2: l.eventY,
+
+              dblclick: function(l) {
+                $('#table').removeLayer(l.name);
+              },
             });
           },
         });
@@ -88,6 +93,11 @@
               strokeStyle: '#00c',
               x1: x1val, y1: y1val,
               x2: x2val, y2: y2val,
+              strokeWidth: 5,
+
+              dblclick: function(l) {
+                $('#table').removeLayer(l.name);
+              },
             });
           }
         }
