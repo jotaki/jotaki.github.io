@@ -20,7 +20,23 @@
         return r;
       }
 
+      function createLine(l, line_n, color) {
+        $('#table').drawLine({
+          layer: true,
+          name: 'l' + line_n,
+          strokeStyle: color,
+          strokeWidth: 5,
+          x1: l.startX, y1: l.startY,
+          x2: l.eventX, y2: l.eventY,
+
+          dblclick: function(l) {
+            $('#table').removeLayer(l.name);
+          }
+        });
+      }
+
       var lineIndex = 0;
+      var isDrawing = 0;
 
       $(function() {
         $('#table').draw({
@@ -38,24 +54,23 @@
           fromCenter: false,
 
           mousedown: function(l) {
+            isDrawing = 1;
             l.startX = l.eventX;
             l.startY = l.eventY;
           },
 
-          mouseup: function(l) {
-            $('#table').drawLine({
-              layer: true,
-              name: 'l' + lineIndex++,
-              strokeStyle: '#00c',
-              strokeWidth: 5,
-              x1: l.startX, y1: l.startY,
-              x2: l.eventX, y2: l.eventY,
-
-              dblclick: function(l) {
-                $('#table').removeLayer(l.name);
-              },
-            });
+          mousemove: function(l) {
+            if(isDrawing > 0) { 
+              createLine(l, lineIndex, '#0cc');
+            }
           },
+
+          mouseup: function(l) {
+            isDrawing = 0;
+            $('#table').removeLayer('l' + lineIndex);
+            createLine(l, lineIndex, '#00c');
+            lineIndex++;
+          }
         });
 
         var re = new RegExp('(\\d+)x(\\d+)');
@@ -81,24 +96,17 @@
         re = new RegExp('(\\d+)t(\\d+)x(\\d+)t(\\d+)');
         for(var i = 0; querystring('l' + i) != ''; i++) {
           var m, line = querystring('l' + i);
+          var info = {};
 
           if((m = re.exec(line)) != null) {
-            var x1val = parseInt(m[1]), y1val = parseInt(m[2]);
-            var x2val = parseInt(m[3]), y2val = parseInt(m[4]);
+            info = {
+              startX: parseInt(m[1]),
+              startY: parseInt(m[2]),
+              eventX: parseInt(m[3]),
+              eventY: parseInt(m[4]),
+            };
             lineIndex = i + 1;
-
-            $('#table').drawLine({
-              layer: true,
-              name: 'l' + i,
-              strokeStyle: '#00c',
-              x1: x1val, y1: y1val,
-              x2: x2val, y2: y2val,
-              strokeWidth: 5,
-
-              dblclick: function(l) {
-                $('#table').removeLayer(l.name);
-              },
-            });
+            createLine(info, i, '#00c');
           }
         }
       });
