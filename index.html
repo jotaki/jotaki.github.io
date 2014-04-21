@@ -22,8 +22,11 @@
       }
 
       function createLine(l, line_n, color) {
+        var name = 'l' + line_n;
+
         $('#table').drawLine({
           layer: true,
+          groups: [ 'lines' ],
           name: 'l' + line_n,
           strokeStyle: color,
           strokeWidth: 5,
@@ -122,13 +125,13 @@
           }
         }
 
-        var i = 0, line;
-        while((line = $('#table').getLayer("l" + i)) != null) {
-          var x1 = line.x1, x2 = line.x2, y1 = line.y1, y2 = line.y2;
-
-          params.push("l" + i + "=" + x1 + "t" + y1 + "x" + x2 + "t" + y2);
-
-          i += 1;
+        var i = 0, lines = $('#table').getLayerGroup('lines')
+        if(lines != null) {
+          for(i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            var x1 = line.x1, x2 = line.x2, y1 = line.y1, y2 = line.y2;
+            params.push("l" + i + "=" + x1 + "t" + y1 + "x" + x2 + "t" + y2);
+          }
         }
 
         if(params.length > 0) {
