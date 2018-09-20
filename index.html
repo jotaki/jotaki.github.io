@@ -1,177 +1,608 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="author" content="Joseph Kinsella" />
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
-    <title>Pool Diagram Thingy</title>
-
+    <meta charset="utf-8">
+    <meta name="author" content="Joseph Kinsella">
+    <meta name="keywords" content="Linux,Pool,SSH,Certificates,Maths,Math,Multiplication">
+    <meta name="description" content="A Simple website with various pieces of content relating to computers. (mostly)">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css" -->
+    <link rel="stylesheet" type="text/css" href="css/jotaki.css">
+    <title>jotaki.github.io</title>
     <script src="js/jquery-1.9.1.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
     <script src="js/jcanvas.min.js"></script>
+    <script src="js/tinysort.min.js"></script>
+    <script src="js/jquery.tinysort.js"></script>
+    <script src="js/jotaki.js"></script>
     <script>
-      /*
-       * yanked from
-       * http://stackoverflow.com/questions/3788125/jquery-querystring
-       */
-
-      function querystring(key) {
-        var re=new RegExp('(?:\\?|&)'+key+'=(.*?)(?=&|$)','gi');
-        var r=[], m;
-        while ((m=re.exec(document.location.search)) != null) r.push(m[1]);
-        return r;
-      }
-
-      function createLine(l, line_n, color) {
-        var name = 'l' + line_n;
-
-        $('#table').drawLine({
-          layer: true,
-          groups: [ 'lines' ],
-          name: 'l' + line_n,
-          strokeStyle: color,
-          strokeWidth: 5,
-          x1: l.startX, y1: l.startY,
-          x2: l.eventX, y2: l.eventY,
-
-          dblclick: function(l) {
-            $('#table').removeLayer(l.name);
-          }
-        });
-      }
-
-      var lineIndex = 0;
-      var isDrawing = 0;
-
-      $(function() {
-        $('#table').draw({
-          layer: true,
-          type: 'rectangle',
-          fillStyle: '#ccc',
-          width: 1000, height: 1000,
-          fromCenter: false,
-        });
-
-        $('#table').drawImage({
-          layer: true,
-          name: 'table',
-          source: 'images/table.png',
-          fromCenter: false,
-
-          mousedown: function(l) {
-            isDrawing = 1;
-            l.startX = l.eventX;
-            l.startY = l.eventY;
-          },
-
-          mousemove: function(l) {
-            if(isDrawing > 0) { 
-              createLine(l, lineIndex, '#0cc');
-            }
-          },
-
-          mouseup: function(l) {
-            isDrawing = 0;
-            $('#table').removeLayer('l' + lineIndex);
-            createLine(l, lineIndex, '#00c');
-            lineIndex++;
-          }
-        });
-
-        var re = new RegExp('(\\d+)x(\\d+)');
-        for(var i = 0; i <= 15; i++) {
-          var yval = 525, xval = (i + 1) * 15 + ((i + 0.5) * 40);
-          var m, ball = querystring('b' + i);
-
-          if(ball && ball != '') {
-            if((m = re.exec(ball)) != null) {
-              yval = m[1], xval = m[2];
-            }
-          }
-
-          $('#table').drawImage({
-            layer: true,
-            name: 'b' + i,
-            source: 'images/' + i + '.png',
-            x: xval, y: yval,
-            draggable: true,
-          });
-        }
-
-        re = new RegExp('(\\d+)t(\\d+)x(\\d+)t(\\d+)');
-        for(var i = 0; querystring('l' + i) != ''; i++) {
-          var m, line = querystring('l' + i);
-          var info = {};
-
-          if((m = re.exec(line)) != null) {
-            info = {
-              startX: parseInt(m[1]),
-              startY: parseInt(m[2]),
-              eventX: parseInt(m[3]),
-              eventY: parseInt(m[4]),
-            };
-            lineIndex = i + 1;
-            createLine(info, i, '#00c');
-          }
-        }
+      $(document).ready(function() {
+        build_site_gui();
+        bind_site_events();
+        check_site_parameters();
       });
-
-      function copyLink() {
-        var params = [];
-        var baseurl = document.location.origin + document.location.pathname;
-        for(var i = 0; i <= 15; i++) {
-          var ball = $('#table').getLayer('b' + i);
-          if(ball.y != 525) {
-            params.push("b" + i + "=" + ball.y + "x" + ball.x);
-          }
-        }
-
-        var i = 0, lines = $('#table').getLayerGroup('lines')
-        if(lines != null) {
-          for(i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            var x1 = line.x1, x2 = line.x2, y1 = line.y1, y2 = line.y2;
-            params.push("l" + i + "=" + x1 + "t" + y1 + "x" + x2 + "t" + y2);
-          }
-        }
-
-        if(params.length > 0) {
-          $('#link').val(baseurl + '?' + params.join('&'));
-        }
-      }
-
-      function saveImage() {
-        var img = $('#table').getCanvasImage('png').replace('image/png', 'image/octet-stream');
-        window.location.href = img;
-      }
     </script>
   </head>
   <body>
-    <noscript>
-      This page requires javascript.
-    </noscript>
-
-    <canvas id="table" width="912" height="550"></canvas>
-    <div id="info">
+    <div id="nav">
+      <ul>
+        <li data-content="#home-content">&diams; jotaki.github.io &diams;</li>
+        <li data-content="#portal-content"
+            data-onquery="portal_query($(self).find('.portal'), p.params)">Portal</li>
+        <li data-content="#pd-content"
+            data-onload="init_pool_table($(self).find('canvas'));"
+            data-onquery="pool_parse_query($(self).find('canvas'), p);">Pool Diagram</li>
+        <li data-content="#help-content">&nbsp;?&nbsp;</li>
+      </ul>
+    </div>
+    <div id='entry'>
+      <div class="props top">
+        <div class="props-cell top-left">
+          <span data-mt-var="mt-sqrtp1"></span>&sup2;-<span data-mt-var="mt-sqrtp1r"></span>
+        </div>
+        <div class="props-cell top-right">
+          <span data-mt-var="mt-sqrt"></span>&sup2;+<span data-mt-var="mt-sqrtr"></span>
+        </div>
+      </div>
+      <span class="mt-number"><span data-mt-var="mt-n"></span></span>
+      <div class="props bottom">
+        <div class="props-cell bottom-left"><span data-mt-var="mt-square-idx"></span></div>
+        <div class="props-cell bottom-center"><span data-mt-var="mt-htree-idx"></span></div>
+        <div class="props-cell bottom-right"><span data-mt-var="mt-tree-idx"></span></div>
+      </div>
+      <div class="banner-text">
+        <div style="text-align: center">
+          <span data-mt-var="mt-a"></span> * <span data-mt-var="mt-b"></span> = <span data-mt-var="mt-n"></span><br/>
+          Term sum: <span data-mt-var="mt-term-sum"></span><br/>
+          Tree Index: <span data-mt-var="mt-tree-idx"></span><br/>
+          Square Form: <span data-mt-var="mt-form-square"></span><br/>
+          Row Form: <span data-mt-var="mt-form-row"></span><br/>
+          Add/Subtract Offsets: <span data-mt-var="mt-add-offset"></span> | <span data-mt-var="mt-subtract-offset"></span><br/>
+        </div>
+      </div>
+    </div>
+    <div id="mt-panel" class="page-content">
+      <div class="bg-easy">easily factored</div>
+      <div class="bg-medium">found other factors</div>
+      <div class="bg-notfound">factors not found</div>
+      <div class="mt-press-c">Press C to refresh</div>
+    </div>
+    <div id="mt-popups" class="page-content">
+      <div class="mt-popup-dialog">
+        <div class="title">Change Row Limit</div>
+        <div class="close">&cross;</div>
+        <div class="number-panel">
+          <div class="row-number"><span class="number-display"></span><span class="cursor">&brvbar;</span></div>
+          <div class="increase"><span>+</span></div>
+          <div class="decrease"><span>-</span></div>
+        </div>
+        <div class="refactor-option">
+          <div class="checkbox">
+            <div class="box">
+              <span class="checkmark">&check;</span>
+            </div>
+            <span class="description">Refactor</span>
+          </div>
+        </div>
+        <div class="button">
+          <span>Ok</span>
+        </div>
+      </div>
+    </div>
+    <div id="home-content" class="page-content center-page">
+      <h1>Introduction</h1>
       <p>
-        This is a simple diagram thing for sharing pool situations.
-        It's hacked together using HTML5 with jquery and jcanvas. The
-        pool table image was taken from <a href="http://tiny.cc/g8jmex">here</a>.
-        <br /><br />
-        The pool balls themselves were done by me in gimp in about 15
-        minutes or so. You may use them if you'd like.
-        <br /><br />
-        Thanks goes to Alipha for the initial idea of doing this.
-        Thanks goes to Chris for sharing the link of the pool table image.
-        <br /><br />
-        Contact: #peltkore on irc.freenode.net
+      Welcome to <u class="site-name">jotaki.github.io</u>. Formally
+        <u class="site-name">spiryx.net</u>. The purpose of this
+        <q>website</q> is to create a place where I can place various bits of
+        information. It also serves as a place for me to dabble and tinker with
+        CSS, JavaScript, and HTML.
+      </p>
+      <h2>Compliance</h2>
+      <p>
+        This page requires a modern Web Browser with JavaScript enabled in order to
+        function and look proper. If you are having issues with this webpage please
+        consider updating your browser to a later version. This webpage is also not
+        considered to be mobile friendly. How it looks, and functions on a mobile
+        device is unknown, and is not expected to be supported any time in the near
+        future. Users with accessibility issues, and of Internet Explorer may also
+        find it difficult to navigate this page.
+      </p>
+      <h1>What you will find?</h1>
+      <p>
+        The intended content of this page is mostly documentation related. With the
+        occassional javascript rich application.
+      </p>
+      <h1>A note on progress</h1>
+      <p>
+        This site is in a state of construction. Sections may be incomplete, and/or
+        broken. Sections may also change, move, or be removed entirely all together.
       </p>
     </div>
-    <div id="links">
-      <form>
-        <a href="javascript:copyLink()">Generate Link</a>
-        <input type="text" size="85" name="link" id="link" />
-        <a href="javascript:saveImage()">Save Image</a>
-      </form>
+    <div id="help-content" class="page-content">
+      <h1>What is this?</h1>
+      <p>
+        This page intends to serve as uselessness.
+      </p>
+
+      <h1>Why?</h1>
+      <p>
+        For the same reason anything happens.
+      </p>
     </div>
+    <div id="mt-notes-content" class="page-content center-page">
+      <h1>Multiplication Triangle</h1>
+      <p>
+        The multiplication triangle is just the multiplication table read
+        diagonally. For example, if we look at this simple 5x5 multiplication
+        table and transpose it, you will quickly see what I mean.
+      </p>
+      <pre>
+         &swarr;  &swarr;  &swarr;  &swarr;  &swarr;
+         1  2  3  4  5           1                              1
+      &nearr;  2  4  6  8  10          2  2                         2   2
+      &nearr;  3  6  9  12 15   -&gt;     3  4  3         -&gt;         3   4   3
+      &nearr;  4  8  12 16 20          4  6  6  4               4   6   6   4
+      &nearr;  5 10  15 20 25          5  8  9  8  5          5   8   9   8   5
+      &nearr;</pre>
+      <!-- /pre -->
+
+      <p>
+      Click <a tabindex="1" id="link-mult-triangle">here</a> for a better example.<br>
+        What's fascinating about reading the multiplication table like this, is it
+        reveals some very interesting patterns. Before we get into that though, it
+        would be helpful if we could generate the triangle table. For that, we will
+        use the following function. Where <b>r</b> is the row, and <b>c</b> is the
+        column.
+      </p>
+      <pre>
+        g(r, c) -&gt; c * (r - (c - 1))</pre>
+      <!-- /pre -->
+
+      <p>
+        Not only can we use row and column values to retrieve a value, but we can also
+        use a simple N-lookup. What I mean is, to find say the 30'th table entry, we
+        need only the following formula:
+      </p>
+      <pre>
+        f(n) -&gt;
+          r = sqrt(2*n)
+          r += ((r*(r+1))/2+1 &lt;= n)
+          c = n - (r*(r-1))/2
+          c * (r - (c - 1))   <code>/* should look familiar */</code></pre>
+      <!-- /pre -->
+
+      <p>
+        <b>N</b> in this case is an index retrieved by the following function:
+      </p>
+      <pre>
+        f(r, c) -&gt; r*(r-1)/2 + c</pre>
+      <!-- /pre -->
+
+      <p>
+        If you are not familiar, you should know that the sum of <b>N</b> odds is the
+        value of <b>N</b>&sup2;, and that the sum of <b>N</b> evens is the value of
+        <b>N</b>*(<b>N</b>+1). This gives us the resulting formula that the sum of
+        consecutive numbers is: (<b>N</b>*(<b>N</b>+1))/2.
+      </p>
+
+      <p>
+        As we read the multiplication table as a triangle we come to see that each row
+        is merely the sum of it's terms less one. For example, we know that 2*5 = 10.
+        This means that we should find 10 on row 6 (2+5-1), and columns 2, and 5.
+        In this way, we could come to see that this table is really a representation
+        of the following sequence:
+      </p>
+      <pre>
+        1.) 1 * 1
+        2.) 2 * 1, 1 * 2
+        3.) 3 * 1, 2 * 2, 1 * 3
+        4.) 4 * 1, 3 * 2, 2 * 3, 1 * 4
+        5.) 5 * 1, 4 * 2, 3 * 3, 2 * 4, 1 * 5
+        6.) 6 * 1, 5 * 2, 4 * 3, 3 * 4, 2 * 5, 1 * 6
+        &hellip;</pre>
+      <!-- /pre -->
+
+      <p>
+        This means that the center value for a given row can be calculated quite
+        easily, since it will always be <b>N</b>&sup2; or <b>N</b>(<b>N</b>+1)
+        depending on whether or not the given <b>N</b> is even or odd. The formula
+        for this can be found below.
+      </p>
+      <pre>
+        <code>;; n is row</code>
+        f(2n) = (n/2)(n/2+1)
+        f(2n+1) = ((n+1)/2)^2
+        f(n) -&gt;
+          r = (n + (n % 2)) / 2   <code>;; r = (n+1)/2 if odd, n/2 if even</code>
+          r * (r + (1 - (n % 2))) <code>;; r^2 if odd, r*(r+1) if even</code></pre>
+      <!-- /pre -->
+
+      Knowing the sum of all values, whose factors add up to some <b>N</b>
+      could be useful. Somewhere, maybe. probably not.
+      <pre>
+        f(2n+1) -&gt;
+          m = (n+1)/2
+          2 * (m^3 - (m*(m-1)*(2*(m-1)+1)/6)) - m^2
+        f(2n) -&gt;
+          <code>; eh? haven't bothered to deduce this yet</code></pre>
+      <!-- /pre -->
+      
+      When we consider <b>A</b>*<b>B</b>, what can we really know?
+      <pre>
+        a*b = c (2n+1)
+
+        Q = (a+b)/2
+        W = (a-b)/2
+        R = 2*Q-1
+        C = Q - W
+        I = R*(R-1)/2 + C
+        N = C * (R - (C - 1))
+        B = C <code>;; (Q - W) -&gt; ((a+b)/2) - ((a-b)/2) -&gt; 2*b/2 -&gt; b</code>
+        A = (R - (C - 1))
+
+        N == A * B == Q&sup2; - W&sup2; == c</pre>
+      <!-- /pre -->
+    </div>
+    <div id="pd-content" class="page-content pooltool">
+      <canvas width="1100" height="500"></canvas>
+      <br/>
+      This is an unfinished application.
+      The pool table is <b>NOT</b> mine. I wish I could remember where I got
+      it from.
+    </div>
+    <div id="portal-content" class="page-content center-page">
+      <div class="portal">
+        <h1>Linux Related</h1>
+        <ul data-topic="linux">
+          <li data-link-section="openssh">
+            <span>OpenSSH</span>
+            <span class="description">
+              Learn about OpenSSH.
+            </span>
+          </li>
+          <li data-link-section="certificates">
+            <span>Certificates</span>
+            <span class="description">
+              A quick overview and command reference for dealing with various
+              certificate types.
+            </span>
+          </li>
+          <li data-show-popup="1">
+            <span>OpenSSH: Generate an ssh key</span>
+            <span class="description">
+              Quick command reference for generating an ssh certificate.
+            </span>
+            <div class="inline-content">
+              <code class="prompt">
+                # check ``man 1 ssh-keygen'' for details.
+
+                ssh-keygen -f ~/.ssh/mykey -t rsa -b 2048 -C "key for myhost"
+              </code>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>OpenSSH: Generating an SSH CA Key</span>
+            <span class="description">
+              Same as generating an ssh client key.
+            </span>
+            <div class="inline-content">
+              <code class="prompt">
+                # check ``man 1 ssh-keygen'' for details.
+
+                ssh-keygen -f myhostca.ca -t rsa -b 4096 -C "CA For my host"
+              </code>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>OpenSSH: Generate a user certificate using their (public) key.</span>
+            <span class="description">
+              Sign your user's public key with one of your host's CA's.
+            </span>
+            <div class="inline-content">
+              <code class="prompt">
+                # check ``man 1 ssh-keygen'' for details
+
+                ssh-keygen -s myhostca.ca \
+                \          -I identifier \
+                \          [-n principles] \
+                \          [-V validity_interval ] \
+                \          myusersey.pub
+              </code>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>OpenSSH: List details about a users certificate</span>
+            <span class="description">
+              Show details about a users certificate.
+            </span>
+            <div class="inline-content">
+              <code class="prompt">
+                # check ``man 1 ssh-keygen'' for details.
+
+                ssh-keygen -Lf myuserkey-cert.pub
+                \myuserkey-cert.pub:
+                \        Type: ssh-rsa-cert-v01@openssh.com user certificate
+                \        Public key: RSA-CERT SHA256:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef...
+                \        Signing CA: RSA SHA256:rstuvwxyz0123456789abcdefghijklmnopqr...
+                \        Key ID: "myuserkey"
+                \        Serial: 0
+                \        Valid: forever
+                \        Principals: (none)
+                \        Critical Options: (none)
+                \        Extensions:
+                \                permit-X11-forwarding
+                \                permit-agent-forwarding
+                \                permit-port-forwarding
+                \                permit-pty
+                \                permit-user-rc
+              </code>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>OpenSSL: Connect to a host using SSL/TLS</span>
+            <span class="description">
+              Use openssl to connect to a host via SSL/TLS
+            </span>
+            <div class="inline-content">
+              <code class="prompt">
+                # check ``man 1 s_client'' for details
+
+                openssl s_client -connect www.google.com:443
+              </code>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>OpenSSL: Generate a Server certificate (self signed) </span>
+            <span class="description">
+              The command to generate a self signed certificate, using openssl's req command.
+            </span>
+            <div class="inline-content">
+              <code class="prompt">
+                # see ``man 1 req'' for more details.
+
+                openssl req -x509 \
+                \           -newkey rsa:2048 \
+                \           -keyout server.pem \
+                \           -out server.pem \
+                \           -days 30 \
+                \           -subj '/C=.../ST=.../L=.../O=.../OU=.../CN=.../emailAddress=.../' \
+                \           [ -nodes ] # no password.
+              </code>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>OpenSSL: Bind to a port using openssl's s_server command</span>
+            <span class="description">
+              Using openssl s_server, we can bind to a port to create a secure listening connection
+            </span>
+            <div class="inline-content">
+              <code class="prompt">
+                # see ``man 1 s_server'' for more details.
+
+                openssl s_server -accept 4443 \
+                \                -cert server.pem \
+                \                -key server.pem
+              </code>
+            </div>
+          </li>
+        </ul>
+        <h1>Maths Related</h1>
+        <ul data-topic="maths">
+          <li data-content="#mt-notes-content" tabindex="1">
+            <span>Multiplication Triangle</span>
+            <span class="description">
+              A silly thing, but interesting to glance over maybe.
+            </span>
+          </li>
+          <li data-show-popup="1">
+            <span>Greatest Common Divisor</span>
+            <span class="description">
+              Find the greatest common divisor for the given values.
+            </span>
+            <div class="inline-content">
+              <code class="pseudo-code">
+                gcd(a,0) = a
+                gcd(a,b) = gcd(b,a%b)
+              </code>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>Modular Inverse</span>
+            <span class="description">
+              Find x &equiv; a&#x207b;&sup1; (mod m).<br>
+              The Extended Euclidean Algorithm without computing the
+              B&eacute;zout coefficient of n.<br>
+              Read more at <a href="https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm">Wikipedia</a>
+            </span>
+            <div class="inline-content">
+              <code class="pseudo-code">
+                inverse(a, b) -&gt;
+                  t = 0, tk = 1;
+                  r = b, rk = a;
+                  while rk &ne; 0 -&gt;
+                    q = r/rk;
+                    m = t-q*tk;
+                    t = tk, tk = m;
+                    m = r-q*rk;
+                    r = rk, rk = m;
+                  ;;
+
+                  (r &gt; 1? 0:
+                   t + (t &lt; 0? b: 0))
+                ;;
+              </code>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>Least Common Multiple</span>
+            <span class="description">
+              Find the smallest integer that divides both a and b.
+            </span>
+            <div class="inline-content">
+              <code class="pseudo-code">
+                lcm(a,b) = b * (a/gcd(a,b));
+              </code>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>Reverse a number</span>
+            <span class="description">
+              Reverse a number in a given a base.
+            </span>
+            <div class="inline-content">
+              <code class="pseudo-code">
+                reverse(0, o, b) = o
+                reverse(i, o, b) -&gt;
+                  reverse(floor(i/b), o*b+(i%b), b);
+                ;;
+
+                Example:
+                &nbsp;&nbsp;reverse(351, 0, 10) -&gt;
+                &nbsp;&nbsp;reverse(35, 1, 10) -&gt;
+                &nbsp;&nbsp;reverse(3, 15, 10) -&gt;
+                &nbsp;&nbsp;reverse(0, 153, 10) = 153
+              </code>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>Pythagorean theorem</span>
+            <span class="description">a&sup2; + b&sup2; = c&sup2;</span>
+            <div class="inline-content">
+              <svg width="200" height="120">
+                <line x1="15" y1="35" x2="135" y2="110" style="stroke:#0f0; stroke-width: 1;" />
+                <line x1="15" y1="35" x2="15" y2="110" style="stroke:#00f; stroke-width: 1;" />
+                <line x1="15" y1="110" x2="135" y2="110" style="stroke:#f00; stroke-width: 1;" />
+                <text x="0" y="75" fill="#000">a</text>
+                <text x="65" y="120" fill="#000">b</text>
+                <text x="78" y="65" fill="#000">c</text>
+                <text x="100" y="45" fill="#000">a&sup2; + b&sup2; = c&sup2;</text>
+              </svg>
+            </div>
+          </li>
+          <li data-show-popup="1">
+            <span>Digital Root</span>
+            <span class="description">
+              Find the digial root for a given number <u>n</u> for some given base <u>b</u>.
+            </span>
+            <div class="inline-content">
+              <code class="pseudo-code">
+                d(n,b) -&gt;
+                  ((n-1) % (b-1)) + 1
+                ;;
+              </code>
+            </div>
+          </li>
+        </ul>
+        <h1>Miscellaneous</h1>
+        <ul data-topic="misc">
+          <li data-link-section="about-me">
+            <span>About Me</span>
+            <span class="description">
+              A Traditional about me page. (not really)
+            </span>
+          </li>
+          <li>
+            <span><a href="https://github.com/jotaki">My Github repository</a></span>
+            <span class="description">
+              Shameful self promotion- There's really nothing of interest there.
+            </span>
+          </li>
+        </ul>
+        <h1>Sites of Reference</h1>
+        <ul data-topic="sites-of-ref">
+          <li>
+            <span><a href="https://oeis.org/">The On-Line Encyclopedia of Integer Sequences&reg; (OEIS&reg;)</a></span>
+            <span class="description">
+              A good place to lookup patterns.
+            </span>
+          </li>
+        </ul>
+        <h1>Books and PDFs</h1>
+        <ul data-topic="books-n-pdfs">
+          <li>
+            <span><u>The Portable Jung</u>, edited by Joseph Campbell</span>
+          </li>
+        </ul>
+      </div>
+      <div id="section-topnav" class="section-topnav">
+        <a class="back-to-portal" tabindex="1">Return to Portal</a>
+        <a class="sharelink" tabindex="1"></a>
+      </div>
+      <div class="subsection" data-section="about-me">
+        <h1>About Me</h1>
+        <p>This is where I'd place an about me page, if I cared about that sort of thing.</p>
+      </div>
+      <div class="subsection" data-section="openssh">
+        <h1>OpenSSH</h1>
+        <h2>What is OpenSSH?</h2>
+        <p>
+          According to their <a href="https://www.openssh.com/">website</a>
+        </p>
+        <blockquote cite="https://www.openssh.com/">
+          <p>
+            OpenSSH is the premier connectivity tool for remote login with the SSH protocol. It encrypts all traffic to
+            eliminate eavesdropping, connection hijacking, and other attacks. In addition, OpenSSH provides a large suite
+            of secure tunneling capabilities, several authentication methods, and sophisticated configuration options. 
+          </p>
+        </blockquote>
+        <p>
+          OpenSSH consists of several different applications, used for a variety of different purposes. But all,
+          utimately aiming to give you secure remote access to a machine that is listening on a port capable of
+          speaking the SSH Protocol. Here is a quick list of applications you can expect to find when you install
+          OpenSSH.
+        </p>
+        <div class="nested-table">
+          <div class="table">
+            <div><div class="header" style="width: 20%;">Application</div><div class="header">Description</div></div>
+            <div><div>sshd</div><div>Binds to a port, providing SSH protocol support.</div></div>
+            <div><div>ssh</div><div>Remotely connects to a running SSH server.</div></div>
+            <div><div>scp</div><div>Copy files to and/or from a remote server over SSH.</div></div>
+            <div><div>sftp-server</div><div>An SSH Subsystem that provides FTP-Like support.</div></div>
+            <div><div>sftp</div><div>Copy files to and/or from a remote server using the sftp Subsystem.</div></div>
+            <div><div>ssh-agent</div><div>A client daemon that manages ssh keys.</div></div>
+            <div><div>ssh-add</div><div>Manage keys within a currently running ssh-agent daemon.</div></div>
+            <div><div>ssh-keygen</div><div>A tool used to generate key pairs.</div></div>
+          </div>
+        </div>
+        <h2>What is SSH?</h2>
+        <p>
+          SSH stands for <u>S</u>ecure <u>Sh</u>ell, and consists of several layers documented over several RFC's. To
+          speak extensively about these would be out of scope for this document. However, for completeness sake they
+          should be mentioned. In short, we will say that the SSH protocol enables a secure transport over an insecure
+          network.
+        </p>
+        <div class="nested-table">
+          <div class="table">
+            <div><div class="header" style="width: 15%;">RFC</div><div class="header">Description</div></div>
+            <div><div class="centered"><a href="https://tools.ietf.org/html/rfc4251">RFC 4251</a></div><div>The architecture of the SSH Protocol</div></div>
+            <div><div class="centered"><a href="https://tools.ietf.org/html/rfc4252">RFC 4252</a></div><div>The authentication protocol</div></div>
+            <div><div class="centered"><a href="https://tools.ietf.org/html/rfc4253">RFC 4253</a></div><div>The transport layer</div></div>
+            <div><div class="centered"><a href="https://tools.ietf.org/html/rfc4254">RFC 4254</a></div><div>The connection protocol</div></div>
+          </div>
+        </div>
+        <h2>Obtaining OpenSSH</h2>
+        <h3>Debian</h3>
+        <code class="prompt">
+          sudo apt-get install openssh-server
+        </code>
+        <h3>RHEL / CentOS</h3>
+        <code class="prompt">
+          sudo yum install openssh-server
+        </code>
+        <h3>Gentoo</h3>
+        <code class="prompt">
+          sudo emerge net-misc/openssh
+        </code>
+        <h3>Other</h3>
+        <p>
+          If you are running Linux, chances are, you already have OpenSSH installed. However, if for some reason OpenSSH
+          is not installed. You can obtain a copy by checking with your distributions package management resource or by visiting
+          <a href="https://www.openssh.com/">https://www.openssh.com/</a> and following the correct links which correspond
+          to your operating system.
+        </p>
+      </div>
+    </div>
+    <div id="main"></div>
   </body>
 </html>
