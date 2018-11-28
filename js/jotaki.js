@@ -118,7 +118,7 @@ function generate_table(max, refactor) {
         if((c > r/2)) {
           c = r-c+1;
         }
-        return (r*r-1)/4+1;
+        return (r*r-1)/4+c;
       }
 
       var col = $('#entry').clone().removeAttr('id').addClass('b');
