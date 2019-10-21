@@ -39,8 +39,15 @@ function query_n(n, exp) {
       return sq;
     }
 
-    if(i == 1)
+    if(i == 1) {
       sq += 1;
+
+      if(n%4 == 1 && (sq%2) == 0) {
+        sq += 1;
+      } else if(n%4 == 3 && (sq%2) == 1) {
+        sq += 1;
+      }
+    }
 
     sqr = sq*sq - n;
     sqrsq = fsqrt(sqr);
