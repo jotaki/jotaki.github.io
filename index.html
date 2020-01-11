@@ -660,7 +660,7 @@
         </code>
         <h3>AllowAgentForwarding</h3>
         <p>
-          This keyword specified whether SSH keys should be allowed to be forwarded using ssh-agent. What this really
+          This keyword specifies whether SSH keys should be allowed to be forwarded using ssh-agent. What this really
           means is that, when connecting with a key managed my ssh-agent, you can ssh to another host using the same key
           from the server that you ssh'd to. According to the manpage, setting no is not adequate security. See
           <span class="note">man 5 sshd_config</span> for details.
@@ -668,6 +668,25 @@
         <code class="config">
           <span class="comment">Example usage; the default value is yes.</span><br>
           <span class="keyword">AllowAgentForwarding</span> yes
+        </code>
+        <h3>AllowGroups</h3>
+        <p>
+          Specifies the group names that are allowed to login remotely by using ssh. A user only needs to be part of one
+          of the specified groups in order to login. By default this value is empty, implying it does not matter which
+          group is logged in.
+        </p>
+        <code class="config">
+          <span class="comment">User must be in group wheel, or ssh-users, or in a group beginning with net</span><br>
+          <span class="keyword">AllowGroups</span> wheel ssh-users net*
+        </code>
+        <h3>AllowStreamLocalForwarding</h3>
+        <p>
+          Specifies whether or not Unix-domain sockets can be forwarded. Available options are yes (default), all, no,
+          local, and remote. Specifying yes enables StreamLocal forwarding both locally and remotely.
+        </p>
+        <code class="config">
+          <span class="comment">Only allow local forwarding</span><br>
+          <span class="keyword">AllowStreamLocalForwarding</span> local
         </code>
       </div>
     </div>
