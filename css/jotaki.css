@@ -725,3 +725,10 @@ div.inline-content > svg {
   display: block;
   background-color: #f0f0f0;
 }
+p.paragraph {
+  font-family: "Courier New", courier, monospace;
+  font-size: 12pt;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid rgba(198,222,198,0.6);
+}
