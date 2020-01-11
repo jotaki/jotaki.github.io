@@ -688,6 +688,36 @@
           <span class="comment">Only allow local forwarding</span><br>
           <span class="keyword">AllowStreamLocalForwarding</span> local
         </code>
+        <h3>AllowTcpForwarding</h3>
+        <p>
+          Enables TCP port forwarding using the SSH protocol. Available options are yes (default), all, no, local, and
+          remote. Specifying yes enables TCP forwarding both remotely and locally.
+        </p>
+        <code class="config">
+          <span class="comment">Allow only remote port forwarding.</span><br>
+          <span class="keyword">AllowTcpForwarding.</span> remote
+        </code>
+        <h3>AllowUsers</h3>
+        <p>
+          A space delimited list of users allowed to login to the system remotely using ssh. Numerical IDs are not
+          accepted.
+        </p>
+        <code class="config">
+          <span class="comment">Allow only the user jsmith, and users beginning with git</span><br>
+          <span class="keyword">AllowUsers</span> jsmith git*
+        </code>
+        <h3>AuthenticationMethods</h3>
+        <p>
+          Defines the authentication methods that should be used when logging in remotely using the ssh client. The
+          available methods are: gssapi-with-mic, hostbased, keyboard-interactive, none, password, and publickey. It is
+          recommended that sshd_config be configured with atleast publickey. This keyword directive takes a space
+          delimited list of different authentication methods. Additionally, you may use a comma (,) to specify that more
+          than one authentication method be used.
+        </p>
+        <code class="config">
+          <span class="comment">Require publickey AND password to login to the system</span><br>
+          <span class="keyword">AuthenticationMethods</span> publickey,keyboard-interactive
+        </code>
       </div>
     </div>
     <div id="main"></div>
