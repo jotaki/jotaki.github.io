@@ -631,6 +631,44 @@
           <a href="https://www.openssh.com/">https://www.openssh.com/</a> and following the correct links which correspond
           to your operating system.
         </p>
+        <h2>Understanding sshd_config</h2>
+        <p>
+          The file located at <span class="note">/etc/ssh/sshd_config</span> is the main configuration
+          file for the OpenSSH server. This file is configured by key-value pairs that will enable the server to act in
+          specific ways. I will be referencing the sshd_config manpage to aid this documentation. Feel free to check
+          <span class="note">man 5 sshd_config</span> at anytime.
+        </p>
+        <h3>AcceptEnv</h3>
+        <p>
+          This keyword is in charge of specifying what environment variables are allowed to be set on the server upon
+          connecting to the remote host. By default, <b>TERM</b> is always accepted. My sshd_config file also allows
+          locale environment variables to be set as well. You're <span class="note">sshd_config</span> may differ.
+        </p>
+        <code class="config">
+          <span class="comment">Example Usage</span><br>
+          <span class="keyword">AcceptEnv</span> LANG LC_ALL LC_CTYPE LC_TIME
+        </code>
+        <h3>AddressFamily</h3>
+        <p>
+          This keyword is to define what address family to use; the address family is the IP (internet protocol)
+          family. Valid options include <span class="note">inet</span> for IPv4, <span class="note">inet6</span> for
+          IPv6, and <span class="note">any</span> for both IPv4 and IPv6.
+        </p>
+        <code class="config">
+          <span class="comment">Example Usage</span><br>
+          <span class="keyword">AddressFamily</span> any
+        </code>
+        <h3>AllowAgentForwarding</h3>
+        <p>
+          This keyword specified whether SSH keys should be allowed to be forwarded using ssh-agent. What this really
+          means is that, when connecting with a key managed my ssh-agent, you can ssh to another host using the same key
+          from the server that you ssh'd to. According to the manpage, setting no is not adequate security. See
+          <span class="note">man 5 sshd_config</span> for details.
+        </p>
+        <code class="config">
+          <span class="comment">Example usage; the default value is yes.</span><br>
+          <span class="keyword">AllowAgentForwarding</span> yes
+        </code>
       </div>
     </div>
     <div id="main"></div>

@@ -654,12 +654,16 @@ div.subsection div.nested-table {
 div.subsection div.nested-table > div.table {
   width: 100%;
 }
+div.subsection span.note {
+  font-style: italic;
+  font-weight: bold;
+}
 code.prompt:before {
   font-weight: bold;
   color: #0b0;
   content: '$ ';
 }
-code.prompt {
+code.prompt, code.config {
   font-family: "Courier New", courier, monospace;
   font-size: 10pt;
   margin: auto;
@@ -672,6 +676,19 @@ code.prompt {
   width: 85%;
   background-color: #000;
   color: #fff;
+}
+code.config > span.comment:before {
+  content: '# ';
+  color: #35abbd;
+  font-weight: bold;
+}
+code.config > span.comment {
+  color: #35abbd;
+  font-weight: bold;
+}
+code.config > span.keyword {
+  color: #2ca257;
+  font-weight: bold;
 }
 div.inline-content > code.pseudo-code,
 div.inline-content > code.prompt {
